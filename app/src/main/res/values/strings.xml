@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">SIMCardDetector</string>
+    <string name="sim_counter_label">Вставлено сим-карт: %d</string>
+    <string name="sim_info_label">Номер сим-карты: <b>%d</b>,\nОператор: <b>%s</b></string>
 </resources>

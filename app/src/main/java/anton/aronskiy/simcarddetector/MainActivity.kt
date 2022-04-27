@@ -8,65 +8,65 @@ import android.os.Bundle
 import android.telephony.SubscriptionManager
 import android.telephony.TelephonyManager
 import android.util.Log
+import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-
+import anton.aronskiy.simcarddetector.providers.SimInfoProvider
+import anton.aronskiy.simcarddetector.providers.SimInfoProviderImpl
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : AppCompatActivity() {
 
-    companion object{
-        const val REQUEST_CODE = 144
-    }
+    private val viewModel: MainViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val requestPermissionLauncher =
-        registerForActivityResult(
-            ActivityResultContracts.RequestPermission()
-        ) { isGranted: Boolean ->
-            if (isGranted) {
-                getSIMInfo()
-            } else {
-                // Explain to the user that the feature is unavailable because the
-                // features requires a permission that the user has denied. At the
-                // same time, respect the user's decision. Don't link to system
-                // settings in an effort to convince the user to change their
-                // decision.
+        val simInfoCounter = findViewById<TextView>(R.id.simInfoCounter)
+        val simInfoLabel = findViewById<TextView>(R.id.simInfo)
+
+        viewModel.simCards.observe(this) { simCards ->
+            simInfoCounter.text = getString(R.string.sim_counter_label, simCards.size)
+
+            val simsInfo = simCards.map {
+                getString(R.string.sim_info_label, it.subscriptionId, it.carrierName)
             }
+            simInfoLabel.text = simsInfo.joinToString(separator = "\n\n\n")
         }
+
+        requestPermissions()
+    }
+
+    private fun requestPermissions(){
+
+        val requestPermissionLauncher =
+            registerForActivityResult(
+                ActivityResultContracts.RequestPermission()
+            ) { isGranted: Boolean ->
+                if (isGranted) {
+                    fetchSubscription()
+                }
+            }
 
         when {
             ContextCompat.checkSelfPermission(
                 this,
                 Manifest.permission.READ_PHONE_STATE
             ) == PackageManager.PERMISSION_GRANTED -> {
-                getSIMInfo()
+                fetchSubscription()
             }
             else -> {
                 requestPermissionLauncher.launch(
                     Manifest.permission.READ_PHONE_STATE)
             }
         }
-
     }
 
-    @SuppressLint("MissingPermission")
-    private fun getSIMInfo() {
-        val sm = getSystemService(SubscriptionManager::class.java)
-        val  activeSubscriptionInfoList = sm.activeSubscriptionInfoList
-        for (subscriptionInfo in activeSubscriptionInfoList) {
-            val carrierName = subscriptionInfo.getCarrierName()
-            val displayName = subscriptionInfo.getDisplayName()
-            val mcc = subscriptionInfo.getMcc()
-            val mnc = subscriptionInfo.getMnc()
-            val subscriptionInfoNumber = subscriptionInfo.getNumber()
-            Log.d("Anton","Finish")
-        }
-
-        val mTelephonyMgr = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
-        val imei: String = mTelephonyMgr.getDeviceId()
+    private fun fetchSubscription() {
+        viewModel.getSimCardInfo()
     }
+
 }

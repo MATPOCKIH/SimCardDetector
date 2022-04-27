@@ -7,12 +7,27 @@
     tools:context=".MainActivity">
 
     <TextView
+        android:id="@+id/simInfoCounter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
+        tools:text="@string/sim_counter_label"
+        android:layout_marginTop="40dp"
+        android:textSize="26dp"
+        android:textStyle="bold"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/simInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:textSize="20dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/simInfoCounter"
+        app:layout_constraintTop_toBottomOf="@+id/simInfoCounter"
+        tools:text="Номер сим-карты: $1%d,\n оператор: $2%s" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
